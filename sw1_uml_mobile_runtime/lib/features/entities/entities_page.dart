@@ -93,6 +93,14 @@ class _EntitiesPageState extends State<EntitiesPage> {
 
           return AppContentContainer(child: Column(
             children: [
+              if (_schemaService.lastSource == SchemaSource.cache)
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 10, 16, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text('Sin conexión · mostrando datos guardados'),
+                  ),
+                ),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),

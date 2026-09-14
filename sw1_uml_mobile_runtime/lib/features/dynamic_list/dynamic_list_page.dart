@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/api/generic_api_service.dart';
+import '../../core/database/generic_repository.dart';
 import '../../core/formatters/label_formatter.dart';
 import '../../core/widgets/app_content_container.dart';
 import '../../schema/model/runtime_schema.dart';
@@ -21,21 +22,21 @@ class DynamicListPage extends StatefulWidget {
 }
 
 class _DynamicListPageState extends State<DynamicListPage> {
-  final GenericApiService _api = GenericApiService();
+  final GenericRepository _repository = GenericRepository();
   final RuntimeSchemaService _schemas = RuntimeSchemaService();
 
-  late Future<List<Map<String, dynamic>>> _future;
+  late Future<RepositoryResult> _future;
   RuntimeSchema? _schema;
 
   @override
   void initState() {
     super.initState();
-    _future = _api.getAll(widget.entity.endpoint);
+    _future = _repository.getAllWithSource(widget.entity);
   }
 
   void _reload() {
     setState(() {
-      _future = _api.getAll(widget.entity.endpoint);
+      _future = _repository.getAllWithSource(widget.entity);
     });
   }
 
@@ -96,7 +97,7 @@ class _DynamicListPageState extends State<DynamicListPage> {
               label: const Text('Nuevo'),
             )
           : null,
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<RepositoryResult>(
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -110,7 +111,8 @@ class _DynamicListPageState extends State<DynamicListPage> {
             );
           }
 
-          final records = snapshot.data ?? [];
+          final result = snapshot.data!;
+          final records = result.records;
 
           if (records.isEmpty) {
             return EmptyState(
@@ -119,12 +121,23 @@ class _DynamicListPageState extends State<DynamicListPage> {
           }
 
           return AppContentContainer(
-            child: RefreshIndicator(
+            child: Column(
+              children: [
+                if (result.fromCache)
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 10, 16, 0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('Sin conexión · mostrando datos guardados'),
+                    ),
+                  ),
+                Expanded(
+                  child: RefreshIndicator(
               onRefresh: () async {
                 _reload();
                 await _future;
               },
-              child: ListView.separated(
+                    child: ListView.separated(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
                 itemCount: records.length,
@@ -159,7 +172,10 @@ class _DynamicListPageState extends State<DynamicListPage> {
                     ),
                   );
                 },
-              ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           );
         },
