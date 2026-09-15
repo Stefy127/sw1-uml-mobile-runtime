@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../core/api/generic_api_service.dart';
 import '../../core/database/generic_repository.dart';
 import '../../core/formatters/label_formatter.dart';
 import '../../core/widgets/app_content_container.dart';
+import '../../core/sync/sync_coordinator.dart';
 import '../../schema/model/runtime_schema.dart';
 import '../../schema/service/runtime_schema_service.dart';
 import '../dynamic_detail/dynamic_detail_page.dart';
@@ -23,6 +23,7 @@ class DynamicListPage extends StatefulWidget {
 
 class _DynamicListPageState extends State<DynamicListPage> {
   final GenericRepository _repository = GenericRepository();
+  final SyncCoordinator _sync = SyncCoordinator.shared;
   final RuntimeSchemaService _schemas = RuntimeSchemaService();
 
   late Future<RepositoryResult> _future;
@@ -123,6 +124,13 @@ class _DynamicListPageState extends State<DynamicListPage> {
           return AppContentContainer(
             child: Column(
               children: [
+                AnimatedBuilder(
+                  animation: _sync,
+                  builder: (context, _) => _ListSyncStatus(
+                    coordinator: _sync,
+                    onSync: _reload,
+                  ),
+                ),
                 if (result.fromCache)
                   const Padding(
                     padding: EdgeInsets.fromLTRB(16, 10, 16, 0),
@@ -206,5 +214,40 @@ class _DynamicListPageState extends State<DynamicListPage> {
               '${LabelFormatter.fromField(entry.key)}: ${entry.value ?? '—'}',
         )
         .join(' · ');
+  }
+}
+
+class _ListSyncStatus extends StatelessWidget {
+  final SyncCoordinator coordinator;
+  final VoidCallback onSync;
+
+  const _ListSyncStatus({required this.coordinator, required this.onSync});
+
+  @override
+  Widget build(BuildContext context) {
+    if (coordinator.pendingCount == 0 && coordinator.state != SyncState.syncError) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              coordinator.state == SyncState.syncing
+                  ? 'Sincronizando...'
+                  : '${coordinator.pendingCount} cambios pendientes',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          if (coordinator.state != SyncState.syncing)
+            TextButton.icon(
+              onPressed: onSync,
+              icon: const Icon(Icons.sync, size: 18),
+              label: const Text('Sincronizar'),
+            ),
+        ],
+      ),
+    );
   }
 }

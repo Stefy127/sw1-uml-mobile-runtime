@@ -5,6 +5,7 @@ class PendingOperation {
   final String entityEndpoint;
   final PendingOperationType operationType;
   final dynamic recordId;
+  final String? idField;
   final Map<String, dynamic> payload;
   final DateTime createdAt;
   final String status;
@@ -14,6 +15,7 @@ class PendingOperation {
     required this.entityEndpoint,
     required this.operationType,
     required this.recordId,
+    this.idField,
     required this.payload,
     required this.createdAt,
     this.status = 'pending',
@@ -24,6 +26,7 @@ class PendingOperation {
         'entityEndpoint': entityEndpoint,
         'operationType': operationType.name,
         'recordId': recordId,
+        'idField': idField,
         'payload': payload,
         'createdAt': createdAt.toIso8601String(),
         'status': status,
@@ -37,6 +40,7 @@ class PendingOperation {
           json['operationType'] as String,
         ),
         recordId: json['recordId'],
+        idField: json['idField'] as String?,
         payload: Map<String, dynamic>.from(json['payload'] as Map),
         createdAt: DateTime.parse(json['createdAt'] as String),
         status: json['status'] as String? ?? 'pending',

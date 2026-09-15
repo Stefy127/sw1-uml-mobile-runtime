@@ -18,4 +18,9 @@ class LocalDatabase {
     final database = await instance;
     return _store.record(key).get(database);
   }
+
+  static Future<void> delete(String key) async {
+    final database = await instance;
+    await _store.record(key).delete(database);
+  }
 }

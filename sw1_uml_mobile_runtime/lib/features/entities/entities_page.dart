@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../schema/model/runtime_schema.dart';
 import '../../schema/service/runtime_schema_service.dart';
 import '../../core/widgets/app_content_container.dart';
+import '../../core/sync/sync_coordinator.dart';
 import '../dynamic_list/dynamic_list_page.dart';
 
 class EntitiesPage extends StatefulWidget {
@@ -14,6 +15,7 @@ class EntitiesPage extends StatefulWidget {
 
 class _EntitiesPageState extends State<EntitiesPage> {
   final RuntimeSchemaService _schemaService = RuntimeSchemaService();
+  final SyncCoordinator _sync = SyncCoordinator.shared;
 
   late Future<RuntimeSchema> _schemaFuture;
 
@@ -27,6 +29,21 @@ class _EntitiesPageState extends State<EntitiesPage> {
     setState(() {
       _schemaFuture = _schemaService.load();
     });
+  }
+
+  Future<void> _syncNow() async {
+    final completed = await _sync.flush();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _sync.pendingCount == 0
+              ? 'Sincronización completa'
+              : 'No se pudieron sincronizar todos los cambios.',
+        ),
+      ),
+    );
+    if (completed > 0) _reload();
   }
 
   @override
@@ -119,6 +136,13 @@ class _EntitiesPageState extends State<EntitiesPage> {
                   ],
                 ),
               ),
+              AnimatedBuilder(
+                animation: _sync,
+                builder: (context, _) => _SyncBanner(
+                  coordinator: _sync,
+                  onSync: _syncNow,
+                ),
+              ),
               Expanded(
                 child: ListView.separated(
                   padding: const EdgeInsets.all(16),
@@ -154,6 +178,47 @@ class _EntitiesPageState extends State<EntitiesPage> {
             ],
           ));
         },
+      ),
+    );
+  }
+}
+
+class _SyncBanner extends StatelessWidget {
+  final SyncCoordinator coordinator;
+  final Future<void> Function() onSync;
+
+  const _SyncBanner({required this.coordinator, required this.onSync});
+
+  @override
+  Widget build(BuildContext context) {
+    if (coordinator.pendingCount == 0 &&
+        coordinator.state != SyncState.syncing &&
+        coordinator.state != SyncState.syncError) {
+      return const SizedBox.shrink();
+    }
+    final syncing = coordinator.state == SyncState.syncing;
+    final error = coordinator.state == SyncState.syncError;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              syncing
+                  ? 'Sincronizando...'
+                  : error
+                      ? '${coordinator.pendingCount} cambios pendientes · Error al sincronizar'
+                      : '${coordinator.pendingCount} cambios pendientes',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
+          if (!syncing)
+            TextButton.icon(
+              onPressed: onSync,
+              icon: const Icon(Icons.sync, size: 18),
+              label: const Text('Sincronizar'),
+            ),
+        ],
       ),
     );
   }
