@@ -85,6 +85,7 @@ class GenericRepository {
     try {
       final record = await api.create(entity.endpoint, body);
       await _appendToCache(entity, record);
+      await _syncIfPending();
       return record;
     } on ClientException catch (_) {
       return _queueCreate(entity, body);
@@ -109,6 +110,7 @@ class GenericRepository {
     try {
       final record = await api.update(entity.endpoint, id, body);
       await _mergeInCache(entity, id, record.isEmpty ? body : record);
+      await _syncIfPending();
       return record;
     } on ClientException catch (_) {
       final merged = await sync.mergeIntoPendingCreate(entity.endpoint, id, body);
@@ -141,6 +143,7 @@ class GenericRepository {
       await _queue(PendingOperationType.delete, entity, id, {});
     }
     await _removeFromCache(entity, id);
+    await _syncIfPending();
   }
 
   Future<Map<String, dynamic>> _queueCreate(
@@ -218,5 +221,12 @@ class GenericRepository {
     await coordinator.refreshPendingCount();
   }
 
-  bool _isTemporaryId(dynamic id) => id.toString().startsWith('local-');
+  bool _isTemporaryId(dynamic id) => isTemporaryId(id);
+
+  Future<void> _syncIfPending() async {
+    await coordinator.refreshPendingCount();
+    if (coordinator.pendingCount > 0 && coordinator.state != SyncState.syncing) {
+      await coordinator.flush();
+    }
+  }
 }

@@ -1,5 +1,8 @@
 enum PendingOperationType { create, update, delete }
 
+bool isTemporaryId(dynamic value) =>
+    RegExp(r'^(local|temp)-', caseSensitive: false).hasMatch('$value');
+
 class PendingOperation {
   final String id;
   final String entityEndpoint;
@@ -41,7 +44,9 @@ class PendingOperation {
         ),
         recordId: json['recordId'],
         idField: json['idField'] as String?,
-        payload: Map<String, dynamic>.from(json['payload'] as Map),
+        payload: json['payload'] is Map
+            ? Map<String, dynamic>.from(json['payload'] as Map)
+            : <String, dynamic>{},
         createdAt: DateTime.parse(json['createdAt'] as String),
         status: json['status'] as String? ?? 'pending',
       );

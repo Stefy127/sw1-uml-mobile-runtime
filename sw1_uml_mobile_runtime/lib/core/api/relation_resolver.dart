@@ -6,8 +6,13 @@ class RelationResolver {
   final GenericApiService api;
   final RuntimeSchema schema;
   static final Map<String, Future<List<Map<String, dynamic>>>> _cache = {};
-  late final GenericRepository repository = GenericRepository(api: api);
-  RelationResolver(this.api, this.schema);
+  final GenericRepository repository;
+
+  RelationResolver(this.api, this.schema)
+      : repository = GenericRepository(api: api);
+
+  RelationResolver.withRepository(this.repository, this.schema)
+      : api = repository.api;
 
   RuntimeEntity? entity(String? name) => name == null ? null : schema.entityByName(name);
 

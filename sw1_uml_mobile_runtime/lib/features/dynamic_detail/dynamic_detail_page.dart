@@ -15,7 +15,8 @@ class DynamicDetailPage extends StatefulWidget {
 
 class _DynamicDetailPageState extends State<DynamicDetailPage> {
   final _repository = GenericRepository();
-  late final RelationResolver _resolver = RelationResolver(_repository.api, widget.schema);
+  late final RelationResolver _resolver =
+      RelationResolver.withRepository(_repository, widget.schema);
   Map<String, String> _values = {};
   bool _loading = true;
   @override void initState() { super.initState(); _resolve(); }

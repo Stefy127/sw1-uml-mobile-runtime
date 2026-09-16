@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' show ClientException;
+import 'package:sembast/sembast_memory.dart';
 import 'package:sw1_uml_mobile_runtime/core/api/generic_api_service.dart';
+import 'package:sw1_uml_mobile_runtime/core/api/relation_resolver.dart';
 import 'package:sw1_uml_mobile_runtime/core/database/generic_repository.dart';
 import 'package:sw1_uml_mobile_runtime/core/database/local_database.dart';
 import 'package:sw1_uml_mobile_runtime/core/database/pending_operation.dart';
@@ -181,6 +183,13 @@ class _GuardApi extends GenericApiService {
   }
 }
 
+class _RelationOfflineApi extends GenericApiService {
+  @override
+  Future<List<Map<String, dynamic>>> getAll(String path) async {
+    throw ClientException('offline');
+  }
+}
+
 RuntimeEntity _entity(String endpoint) => RuntimeEntity(
       name: 'TestEntity',
       endpoint: endpoint,
@@ -217,6 +226,45 @@ PendingOperation _createOperation(
     );
 
 void main() {
+  var databaseNumber = 0;
+
+  setUp(() async {
+    final database = await databaseFactoryMemory.openDatabase(
+      'offline-test-${databaseNumber++}',
+    );
+    LocalDatabase.configure(database: database);
+  });
+
+  tearDown(() async {
+    await LocalDatabase.reset();
+  });
+
+  test('relation resolver reads cached target while offline', () async {
+    const endpoint = '/api/relation-offline-test';
+    await LocalDatabase.put('entity_cache:$endpoint', [
+      {'id': 'local-parent', 'name': 'Parent local'},
+    ]);
+    final schema = RuntimeSchema(
+      schemaVersion: '1',
+      application: 'Test',
+      version: '1',
+      entities: [_entity(endpoint)],
+    );
+    final field = RuntimeField(
+      name: 'parentId',
+      type: 'relation',
+      required: false,
+      editable: true,
+      readOnly: false,
+      nullable: true,
+      collection: false,
+      relation: true,
+      targetEntity: 'TestEntity',
+    );
+    final resolver = RelationResolver(_RelationOfflineApi(), schema);
+    expect(await resolver.display(field, 'local-parent'), 'Parent local');
+  });
+
   test('pending operation serializes and deserializes', () {
     final operation = PendingOperation(
       id: 'op-1',

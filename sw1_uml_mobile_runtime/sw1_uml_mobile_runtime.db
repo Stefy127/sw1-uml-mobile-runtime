@@ -1,0 +1,123 @@
+{"version":1,"sembast":1}
+{"key":"entity_cache:/api/batch-test","value":[{"id":1,"name":"A"},{"id":2,"name":"B"}]}
+{"key":"entity_cache:/api/cancel-test","value":[]}
+{"key":"entity_cache:/api/children","value":[{"name":"Child","parentId":"local-1789446673074738","id":"local-1789446673111018"}]}
+{"key":"entity_cache:/api/merge-test","value":[{"name":"Offline editada","id":"local-1789445999554186"}]}
+{"key":"entity_cache:/api/overlay-test","value":[{"id":1,"name":"Ana Perez"},{"name":"Offline editada","id":"temp-a"}]}
+{"key":"entity_cache:/api/parents","value":[{"name":"Parent","id":101}]}
+{"key":"entity_cache:/api/parents-resolver","value":[{"id":"local-parent","name":"Carrera local"}]}
+{"key":"entity_cache:/api/partial-test","value":[{"id":1,"name":"A"},{"id":"temp-b","name":"B"}]}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"},{"id":2,"name":"Offline editada"},{"id":3,"name":"offline 2"}]}
+{"key":"entity_cache:/api/reference-test","value":[{"id":1,"name":"A editada","parentId":1}]}
+{"key":"entity_cache:/api/repository-guard-test","value":[]}
+{"key":"pending_operations","value":[{"id":"op-1789446673074738","entityEndpoint":"/api/parents","operationType":"create","recordId":"local-1789446673074738","idField":"id","payload":{"name":"Parent"},"createdAt":"2026-09-15T04:31:13.074738Z","status":"pending"},{"id":"op-1789446673111018","entityEndpoint":"/api/children","operationType":"create","recordId":"local-1789446673111018","idField":"id","payload":{"name":"Child","parentId":"local-1789446673074738"},"createdAt":"2026-09-15T04:31:13.111018Z","status":"pending"}]}
+{"key":"sync:/api/overlay-test","value":"2026-09-15T00:20:00.625304"}
+{"key":"sync:/api/reconnect-test","value":"2026-09-15T00:20:00.479564"}
+{"key":"test_entity_cache","value":[{"id":1,"name":"Example"}]}
+{"key":"pending_operations","value":[{"id":"op-1789446673111018","entityEndpoint":"/api/children","operationType":"create","recordId":"local-1789446673111018","idField":"id","payload":{"name":"Child","parentId":101},"createdAt":"2026-09-15T04:31:13.111018Z","status":"pending"}]}
+{"key":"entity_cache:/api/children","value":[{"name":"Child","parentId":101,"id":202}]}
+{"key":"pending_operations","deleted":true}
+{"key":"test_entity_cache","value":[{"id":1,"name":"Example"}]}
+{"key":"entity_cache:/api/sync-test","value":[{"id":"local-1","name":"Offline"}]}
+{"key":"pending_operations","value":[{"id":"op-sync-test","entityEndpoint":"/api/sync-test","operationType":"create","recordId":"local-1","idField":"id","payload":{"name":"Offline"},"createdAt":"2026-01-01T00:00:00.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"op-sync-test","entityEndpoint":"/api/sync-test","operationType":"create","recordId":"local-1","idField":"id","payload":{"name":"Offline"},"createdAt":"2026-01-01T00:00:00.000Z","status":"pending"}]}
+{"key":"entity_cache:/api/sync-test","value":[{"id":7,"name":"Offline"}]}
+{"key":"pending_operations","deleted":true}
+{"key":"entity_cache:/api/sync-test","deleted":true}
+{"key":"entity_cache:/api/merge-test","deleted":true}
+{"key":"pending_operations","value":[{"id":"op-1789447495198870","entityEndpoint":"/api/merge-test","operationType":"create","recordId":"local-1789447495197857","idField":"id","payload":{"name":"Offline"},"createdAt":"2026-09-15T04:44:55.198870Z","status":"pending"}]}
+{"key":"entity_cache:/api/merge-test","value":[{"name":"Offline","id":"local-1789447495197857"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447495198870","entityEndpoint":"/api/merge-test","operationType":"create","recordId":"local-1789447495197857","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-09-15T04:44:55.198870Z","status":"pending"}]}
+{"key":"entity_cache:/api/merge-test","value":[{"name":"Offline editada","id":"local-1789447495197857"}]}
+{"key":"pending_operations","deleted":true}
+{"key":"entity_cache:/api/batch-test","deleted":true}
+{"key":"entity_cache:/api/batch-test","value":[{"id":"temp-a","name":"A"},{"id":"temp-b","name":"B"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/batch-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/batch-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"},{"id":"2","entityEndpoint":"/api/batch-test","operationType":"create","recordId":"temp-b","idField":"id","payload":{"name":"B"},"createdAt":"2026-01-01T00:00:02.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/batch-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"},{"id":"2","entityEndpoint":"/api/batch-test","operationType":"create","recordId":"temp-b","idField":"id","payload":{"name":"B"},"createdAt":"2026-01-01T00:00:02.000Z","status":"pending"}]}
+{"key":"entity_cache:/api/batch-test","value":[{"id":1,"name":"A"},{"id":"temp-b","name":"B"}]}
+{"key":"pending_operations","value":[{"id":"2","entityEndpoint":"/api/batch-test","operationType":"create","recordId":"temp-b","idField":"id","payload":{"name":"B"},"createdAt":"2026-01-01T00:00:02.000Z","status":"pending"}]}
+{"key":"entity_cache:/api/batch-test","value":[{"id":1,"name":"A"},{"id":2,"name":"B"}]}
+{"key":"pending_operations","deleted":true}
+{"key":"entity_cache:/api/cancel-test","deleted":true}
+{"key":"pending_operations","value":[{"id":"op-1789447495540198","entityEndpoint":"/api/cancel-test","operationType":"create","recordId":"local-1789447495540198","idField":"id","payload":{"name":"Borrar"},"createdAt":"2026-09-15T04:44:55.540198Z","status":"pending"}]}
+{"key":"entity_cache:/api/cancel-test","value":[{"name":"Borrar","id":"local-1789447495540198"}]}
+{"key":"pending_operations","deleted":true}
+{"key":"entity_cache:/api/cancel-test","value":[]}
+{"key":"entity_cache:/api/reference-test","deleted":true}
+{"key":"entity_cache:/api/reference-test","value":[{"id":"temp-a","name":"A"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/reference-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/reference-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"},{"id":"2","entityEndpoint":"/api/reference-test","operationType":"update","recordId":"temp-a","idField":"id","payload":{"parentId":"temp-a","name":"A editada"},"createdAt":"2026-01-01T00:00:02.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/reference-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"},{"id":"2","entityEndpoint":"/api/reference-test","operationType":"update","recordId":"temp-a","idField":"id","payload":{"parentId":"temp-a","name":"A editada"},"createdAt":"2026-01-01T00:00:02.000Z","status":"pending"}]}
+{"key":"entity_cache:/api/reference-test","value":[{"id":1,"name":"A"}]}
+{"key":"pending_operations","value":[{"id":"2","entityEndpoint":"/api/reference-test","operationType":"update","recordId":1,"idField":"id","payload":{"parentId":1,"name":"A editada"},"createdAt":"2026-01-01T00:00:02.000Z","status":"pending"}]}
+{"key":"entity_cache:/api/reference-test","value":[{"id":1,"name":"A editada","parentId":1}]}
+{"key":"pending_operations","deleted":true}
+{"key":"entity_cache:/api/partial-test","deleted":true}
+{"key":"entity_cache:/api/partial-test","value":[{"id":"temp-a","name":"A"},{"id":"temp-b","name":"B"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/partial-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/partial-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"},{"id":"2","entityEndpoint":"/api/partial-test","operationType":"create","recordId":"temp-b","idField":"id","payload":{"name":"B"},"createdAt":"2026-01-01T00:00:02.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/partial-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"},{"id":"2","entityEndpoint":"/api/partial-test","operationType":"create","recordId":"temp-b","idField":"id","payload":{"name":"B"},"createdAt":"2026-01-01T00:00:02.000Z","status":"pending"}]}
+{"key":"entity_cache:/api/partial-test","value":[{"id":1,"name":"A"},{"id":"temp-b","name":"B"}]}
+{"key":"pending_operations","value":[{"id":"2","entityEndpoint":"/api/partial-test","operationType":"create","recordId":"temp-b","idField":"id","payload":{"name":"B"},"createdAt":"2026-01-01T00:00:02.000Z","status":"pending"}]}
+{"key":"pending_operations","deleted":true}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/http-error-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/http-error-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"A"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","deleted":true}
+{"key":"entity_cache:/api/reconnect-test","deleted":true}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"}]}
+{"key":"sync:/api/reconnect-test","value":"2026-09-15T00:44:56.058143"}
+{"key":"pending_operations","value":[{"id":"op-1789447496076675","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496076675","idField":"id","payload":{"name":"Offline"},"createdAt":"2026-09-15T04:44:56.076675Z","status":"pending"}]}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"},{"name":"Offline","id":"local-1789447496076675"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496076675","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496076675","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-09-15T04:44:56.076675Z","status":"pending"}]}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"},{"name":"Offline editada","id":"local-1789447496076675"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496076675","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496076675","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-09-15T04:44:56.076675Z","status":"pending"},{"id":"op-1789447496144861","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496144861","idField":"id","payload":{"name":"offline 2"},"createdAt":"2026-09-15T04:44:56.144861Z","status":"pending"}]}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"},{"name":"Offline editada","id":"local-1789447496076675"},{"name":"offline 2","id":"local-1789447496144861"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496076675","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496076675","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-09-15T04:44:56.076675Z","status":"pending"},{"id":"op-1789447496144861","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496144861","idField":"id","payload":{"name":"offline 2"},"createdAt":"2026-09-15T04:44:56.144861Z","status":"pending"},{"id":"op-1789447496175703","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496175703","idField":"id","payload":{"name":"Persona Para borrar"},"createdAt":"2026-09-15T04:44:56.175703Z","status":"pending"}]}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"},{"name":"Offline editada","id":"local-1789447496076675"},{"name":"offline 2","id":"local-1789447496144861"},{"name":"Persona Para borrar","id":"local-1789447496175703"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496076675","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496076675","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-09-15T04:44:56.076675Z","status":"pending"},{"id":"op-1789447496144861","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496144861","idField":"id","payload":{"name":"offline 2"},"createdAt":"2026-09-15T04:44:56.144861Z","status":"pending"}]}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"},{"name":"Offline editada","id":"local-1789447496076675"},{"name":"offline 2","id":"local-1789447496144861"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496076675","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496076675","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-09-15T04:44:56.076675Z","status":"pending"},{"id":"op-1789447496144861","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496144861","idField":"id","payload":{"name":"offline 2"},"createdAt":"2026-09-15T04:44:56.144861Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496076675","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496076675","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-09-15T04:44:56.076675Z","status":"pending"},{"id":"op-1789447496144861","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496144861","idField":"id","payload":{"name":"offline 2"},"createdAt":"2026-09-15T04:44:56.144861Z","status":"pending"}]}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"},{"name":"Offline editada","id":2},{"name":"offline 2","id":"local-1789447496144861"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496144861","entityEndpoint":"/api/reconnect-test","operationType":"create","recordId":"local-1789447496144861","idField":"id","payload":{"name":"offline 2"},"createdAt":"2026-09-15T04:44:56.144861Z","status":"pending"}]}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"},{"name":"Offline editada","id":2},{"name":"offline 2","id":3}]}
+{"key":"pending_operations","deleted":true}
+{"key":"entity_cache:/api/reconnect-test","value":[{"id":1,"name":"Ana Perez"},{"id":2,"name":"Offline editada"},{"id":3,"name":"offline 2"}]}
+{"key":"sync:/api/reconnect-test","value":"2026-09-15T00:44:56.348908"}
+{"key":"entity_cache:/api/overlay-test","deleted":true}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/overlay-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/overlay-test","operationType":"create","recordId":"temp-a","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"entity_cache:/api/overlay-test","value":[{"id":1,"name":"Ana Perez"},{"name":"Offline editada","id":"temp-a"}]}
+{"key":"sync:/api/overlay-test","value":"2026-09-15T00:44:56.436778"}
+{"key":"pending_operations","deleted":true}
+{"key":"pending_operations","value":[{"id":"create-legacy","entityEndpoint":"/api/legacy-update-test","operationType":"create","recordId":"local-1","idField":"id","payload":{"id":"local-1","name":"Offline"},"createdAt":"2026-01-01T00:00:00.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"create-legacy","entityEndpoint":"/api/legacy-update-test","operationType":"create","recordId":"local-1","idField":"id","payload":{"id":"local-1","name":"Offline"},"createdAt":"2026-01-01T00:00:00.000Z","status":"pending"},{"id":"update-legacy","entityEndpoint":"/api/legacy-update-test","operationType":"update","recordId":"local-1","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"create-legacy","entityEndpoint":"/api/legacy-update-test","operationType":"create","recordId":"local-1","idField":"id","payload":{"name":"Offline editada"},"createdAt":"2026-01-01T00:00:00.000Z","status":"pending"}]}
+{"key":"pending_operations","deleted":true}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/legacy-delete-test","operationType":"create","recordId":"local-1","idField":"id","payload":{"name":"Borrar"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"1","entityEndpoint":"/api/legacy-delete-test","operationType":"create","recordId":"local-1","idField":"id","payload":{"name":"Borrar"},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"},{"id":"delete-legacy","entityEndpoint":"/api/legacy-delete-test","operationType":"delete","recordId":"local-1","idField":"id","payload":{},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","deleted":true}
+{"key":"pending_operations","value":[{"id":"update-orphan","entityEndpoint":"/api/orphan-test","operationType":"update","recordId":"local-1","idField":"id","payload":{"name":"Orphan"},"createdAt":"2026-01-01T00:00:00.000Z","status":"pending"}]}
+{"key":"pending_operations","value":[{"id":"update-orphan","entityEndpoint":"/api/orphan-test","operationType":"update","recordId":"local-1","idField":"id","payload":{"name":"Orphan"},"createdAt":"2026-01-01T00:00:00.000Z","status":"pending"},{"id":"delete-orphan","entityEndpoint":"/api/orphan-test","operationType":"delete","recordId":"local-2","idField":"id","payload":{},"createdAt":"2026-01-01T00:00:01.000Z","status":"pending"}]}
+{"key":"pending_operations","deleted":true}
+{"key":"entity_cache:/api/repository-guard-test","deleted":true}
+{"key":"pending_operations","value":[]}
+{"key":"entity_cache:/api/repository-guard-test","value":[]}
+{"key":"entity_cache:/api/repository-guard-test","value":[]}
+{"key":"pending_operations","deleted":true}
+{"key":"entity_cache:/api/parents","deleted":true}
+{"key":"entity_cache:/api/parents","value":[{"id":"local-parent","name":"Carrera local"}]}
+{"key":"entity_cache:/api/parents-resolver","deleted":true}
+{"key":"entity_cache:/api/parents-resolver","value":[{"id":"local-parent","name":"Carrera local"}]}
+{"key":"entity_cache:/api/parents","deleted":true}
+{"key":"entity_cache:/api/children","deleted":true}
+{"key":"pending_operations","value":[{"id":"op-1789447496841465","entityEndpoint":"/api/parents","operationType":"create","recordId":"local-1789447496841465","idField":"id","payload":{"name":"Parent"},"createdAt":"2026-09-15T04:44:56.841465Z","status":"pending"}]}
+{"key":"entity_cache:/api/parents","value":[{"name":"Parent","id":"local-1789447496841465"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496841465","entityEndpoint":"/api/parents","operationType":"create","recordId":"local-1789447496841465","idField":"id","payload":{"name":"Parent"},"createdAt":"2026-09-15T04:44:56.841465Z","status":"pending"},{"id":"op-1789447496876156","entityEndpoint":"/api/children","operationType":"create","recordId":"local-1789447496876156","idField":"id","payload":{"name":"Child","parentId":"local-1789447496841465"},"createdAt":"2026-09-15T04:44:56.876156Z","status":"pending"}]}
+{"key":"entity_cache:/api/children","value":[{"name":"Child","parentId":"local-1789447496841465","id":"local-1789447496876156"}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496841465","entityEndpoint":"/api/parents","operationType":"create","recordId":"local-1789447496841465","idField":"id","payload":{"name":"Parent"},"createdAt":"2026-09-15T04:44:56.841465Z","status":"pending"},{"id":"op-1789447496876156","entityEndpoint":"/api/children","operationType":"create","recordId":"local-1789447496876156","idField":"id","payload":{"name":"Child","parentId":"local-1789447496841465"},"createdAt":"2026-09-15T04:44:56.876156Z","status":"pending"}]}
+{"key":"entity_cache:/api/parents","value":[{"name":"Parent","id":101}]}
+{"key":"pending_operations","value":[{"id":"op-1789447496876156","entityEndpoint":"/api/children","operationType":"create","recordId":"local-1789447496876156","idField":"id","payload":{"name":"Child","parentId":101},"createdAt":"2026-09-15T04:44:56.876156Z","status":"pending"}]}
+{"key":"entity_cache:/api/children","value":[{"name":"Child","parentId":101,"id":202}]}
+{"key":"pending_operations","deleted":true}
