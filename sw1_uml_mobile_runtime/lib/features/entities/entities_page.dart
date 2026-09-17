@@ -5,6 +5,7 @@ import '../../schema/service/runtime_schema_service.dart';
 import '../../core/widgets/app_content_container.dart';
 import '../../core/sync/sync_coordinator.dart';
 import '../dynamic_list/dynamic_list_page.dart';
+import '../commands/command_page.dart';
 
 class EntitiesPage extends StatefulWidget {
   const EntitiesPage({super.key});
@@ -52,6 +53,19 @@ class _EntitiesPageState extends State<EntitiesPage> {
       appBar: AppBar(
         title: const Text('Entidades'),
         actions: [
+          IconButton(
+            tooltip: 'Comando',
+            onPressed: () async {
+              final schema = await _schemaFuture;
+              if (!mounted) return;
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => CommandPage(schema: schema),
+                ),
+              );
+            },
+            icon: const Icon(Icons.mic_none),
+          ),
           IconButton(
             onPressed: _reload,
             icon: const Icon(Icons.refresh),

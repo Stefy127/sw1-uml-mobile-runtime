@@ -78,6 +78,33 @@ class GenericRepository {
   Future<List<Map<String, dynamic>>> getAll(RuntimeEntity entity) async =>
       (await getAllWithSource(entity)).records;
 
+  Future<Map<String, dynamic>> getById(
+    RuntimeEntity entity,
+    dynamic id,
+  ) async {
+    try {
+      final record = await api.getById(entity.endpoint, id);
+      await _mergeInCache(entity, id, record);
+      return record;
+    } on ClientException catch (_) {
+      return _cachedById(entity, id);
+    } on TimeoutException catch (_) {
+      return _cachedById(entity, id);
+    }
+  }
+
+  Future<Map<String, dynamic>> _cachedById(
+    RuntimeEntity entity,
+    dynamic id,
+  ) async {
+    final record = (await _cachedRecords(entity)).cast<Map<String, dynamic>>();
+    final match = record.where((item) => item[entity.idField] == id);
+    if (match.isEmpty) {
+      throw Exception('No existe el registro ${entity.name} #$id.');
+    }
+    return match.first;
+  }
+
   Future<Map<String, dynamic>> create(
     RuntimeEntity entity,
     Map<String, dynamic> body,
