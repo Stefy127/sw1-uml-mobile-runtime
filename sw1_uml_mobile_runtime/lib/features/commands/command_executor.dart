@@ -21,10 +21,39 @@ class CommandExecutor {
   Future<CommandExecutionResult> execute(CommandIntent intent, {bool confirmDelete = false}) async {
     final entity = intent.entity;
     if (entity == null) return const CommandExecutionResult(success: false, message: 'No reconocí la entidad.');
+    if (intent.action == CommandAction.unknown ||
+        intent.confidence < 0.5 ||
+        intent.ambiguities.isNotEmpty) {
+      return const CommandExecutionResult(
+        success: false,
+        message: 'No pude interpretar con seguridad el comando.',
+      );
+    }
     switch (intent.action) {
       case CommandAction.list:
-      case CommandAction.get:
         return CommandExecutionResult(success: true, message: 'Abrir ${entity.name}.', entity: entity);
+      case CommandAction.get:
+        if (intent.recordId == null) {
+          return const CommandExecutionResult(
+            success: false,
+            message: 'Indica el ID del registro que deseas consultar.',
+          );
+        }
+        try {
+          final record = await repository.getById(entity, intent.recordId);
+          return CommandExecutionResult(
+            success: true,
+            message: 'Abrir ${entity.name}.',
+            entity: entity,
+            body: record,
+          );
+        } catch (_) {
+          return CommandExecutionResult(
+            success: false,
+            entity: entity,
+            message: 'No existe el registro ${entity.name} #${intent.recordId}.',
+          );
+        }
       case CommandAction.delete:
         if (intent.recordId == null) return const CommandExecutionResult(success: false, message: 'Indica el ID del registro que deseas eliminar.');
         if (!confirmDelete) return CommandExecutionResult(success: true, requiresConfirmation: true, entity: entity, message: '¿Eliminar ${entity.name} #${intent.recordId}?');

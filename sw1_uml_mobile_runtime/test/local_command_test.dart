@@ -66,6 +66,45 @@ void main() {
     expect(intent.values['creditos'], 5);
   });
 
+  test('understands natural commands and number words', () {
+    final create = interpreter.interpret(
+      'Registrame una nueva materia Redes 2 de cinco cr\u00e9ditos',
+      _schema(),
+    );
+    final update = interpreter.interpret(
+      'Ponle seis cr\u00e9ditos a la materia 8',
+      _schema(),
+    );
+    final get = interpreter.interpret('Mostrame la materia ocho', _schema());
+    expect(create.action, CommandAction.create);
+    expect(create.values['nombre'], 'Redes 2');
+    expect(create.values['creditos'], 5);
+    expect(update.action, CommandAction.update);
+    expect(update.recordId, 8);
+    expect(update.values['creditos'], 6);
+    expect(get.action, CommandAction.get);
+    expect(get.recordId, 8);
+  });
+
+  test('extracts IDs and distinguishes list from get', () {
+    final getDigits = interpreter.interpret('mostrame la materia 8', _schema());
+    final getWords = interpreter.interpret('consultar materia ocho', _schema());
+    final list = interpreter.interpret('listar materias', _schema());
+    final getNumber = interpreter.interpret('mostrar carrera n\u00famero 5', _schema());
+    final delete = interpreter.interpret('borra materia n\u00famero cuatro', _schema());
+
+    expect(getDigits.action, CommandAction.get);
+    expect(getDigits.recordId, 8);
+    expect(getWords.action, CommandAction.get);
+    expect(getWords.recordId, 8);
+    expect(list.action, CommandAction.list);
+    expect(list.recordId, isNull);
+    expect(getNumber.action, CommandAction.get);
+    expect(getNumber.recordId, 5);
+    expect(delete.action, CommandAction.delete);
+    expect(delete.recordId, 4);
+  });
+
   test('parses plural list and update id', () {
     final list = interpreter.interpret('listar materias', _schema());
     final update = interpreter.interpret('editar materia 8 cambiar creditos a 6', _schema());
