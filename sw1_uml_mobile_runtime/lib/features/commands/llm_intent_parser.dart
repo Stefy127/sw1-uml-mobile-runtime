@@ -194,9 +194,22 @@ class LlmIntentParser {
 
   static const _actions = <String, CommandAction>{
     'create': CommandAction.create,
+    'create ': CommandAction.create,
     'update': CommandAction.update,
+    'edit': CommandAction.update,
+    'modify': CommandAction.update,
     'delete': CommandAction.delete,
+    'remove': CommandAction.delete,
     'list': CommandAction.list,
     'get': CommandAction.get,
+    'read': CommandAction.get,
+    'asocia': CommandAction.update,
+    'relaciona': CommandAction.update,
+    'vincula': CommandAction.update,
+    'asigna': CommandAction.update,
+    'desasocia': CommandAction.update,
+    'desvincula': CommandAction.update,
+    'desrelaciona': CommandAction.update,
+    'quita': CommandAction.update,
   };
 }

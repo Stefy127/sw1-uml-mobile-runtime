@@ -10,11 +10,11 @@ import '../speech/speech_preference_store.dart';
 import '../speech/speech_recognizer_engine.dart';
 import '../speech/system_speech_recognizer_adapter.dart';
 import '../llm/llm_model_manager.dart';
-import '../llm/llm_install_progress.dart';
 import '../llm/llm_preference_store.dart';
 import '../llm/local_llm_engine.dart';
 import '../llm/local_llm_engine_factory.dart';
 import 'command_executor.dart';
+import 'command_execution_plan.dart';
 import 'command_intent.dart';
 import 'local_llm_command_interpreter.dart';
 import 'local_command_interpreter.dart';
@@ -39,6 +39,7 @@ class _CommandPageState extends State<CommandPage> {
     repository: GenericRepository(),
   );
   CommandIntent? _intent;
+  CommandExecutionPlan? _plan;
   SpeechRecognizerEngine? _engine;
   LocalLlmEngine? _llmEngine;
   SpeechPreference _speechPreference = SpeechPreference.offline;
@@ -176,10 +177,13 @@ class _CommandPageState extends State<CommandPage> {
 
   void _interpret() {
     final intent = _interpreter.interpret(_controller.text, widget.schema);
-    setState(() {
-      _intent = intent;
-      _message = intent.entity == null ? 'No reconocí la entidad.' : null;
-    });
+    _resolveIntent(intent, 'Reglas locales');
+  }
+
+  Future<void> _resolveIntent(CommandIntent intent, String source) async {
+    final plan = await _executor.buildPlan(intent);
+    if (!mounted) return;
+    setState(() { _intent = intent; _plan = plan; _interpretationSource = source; _message = plan.executable ? null : plan.blockingError; });
   }
 
   Future<void> _interpretCommand() async {
@@ -201,18 +205,10 @@ class _CommandPageState extends State<CommandPage> {
     try {
       final interpreter = LocalLlmCommandInterpreter(engine: engine, fallback: _interpreter);
       final intent = await interpreter.interpretAsync(_controller.text, widget.schema);
-      setState(() {
-        _intent = intent;
-        _interpretationSource = intent.confidence >= 0.5 && intent.ambiguities.isEmpty ? 'IA local' : 'Reglas locales';
-        _message = intent.entity == null ? 'No se reconoció la entidad.' : null;
-      });
+      await _resolveIntent(intent, intent.confidence >= 0.5 && intent.ambiguities.isEmpty ? 'IA local' : 'Reglas locales');
     } catch (_) {
       final intent = _interpreter.interpret(_controller.text, widget.schema);
-      setState(() {
-        _intent = intent;
-        _interpretationSource = 'Reglas locales';
-        _message = intent.entity == null ? 'No se reconoció la entidad.' : null;
-      });
+      await _resolveIntent(intent, 'Reglas locales');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -236,11 +232,11 @@ class _CommandPageState extends State<CommandPage> {
   }
 
   Future<void> _execute() async {
-    final intent = _intent;
-    if (intent == null) return;
+    final plan = _plan;
+    if (plan == null || !plan.executable) return;
     setState(() => _busy = true);
     try {
-      final result = await _executor.execute(intent);
+      final result = await _executor.executePlan(plan);
       if (!mounted) return;
       if (result.requiresConfirmation) {
         final confirmed = await showDialog<bool>(
@@ -255,14 +251,14 @@ class _CommandPageState extends State<CommandPage> {
           ),
         );
         if (confirmed == true) {
-          final deleted = await _executor.execute(intent, confirmDelete: true);
+          final deleted = await _executor.executePlan(plan, confirmDelete: true);
           if (mounted) _finish(deleted.message);
         }
       } else if (!result.success) {
         _finish(result.message);
-      } else if (intent.action == CommandAction.get) {
+      } else if (plan.action == CommandAction.get) {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DynamicDetailPage(entity: result.entity!, record: result.body, schema: widget.schema)));
-      } else if (intent.action == CommandAction.list) {
+      } else if (plan.action == CommandAction.list) {
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => DynamicListPage(entity: result.entity!)));
       } else {
         _finish(result.message);
@@ -282,7 +278,8 @@ class _CommandPageState extends State<CommandPage> {
   @override
   Widget build(BuildContext context) {
     final intent = _intent;
-    final canExecute = intent != null && intent.entity != null && intent.action != CommandAction.unknown && intent.confidence >= 0.5 && intent.ambiguities.isEmpty;
+    final plan = _plan;
+    final canExecute = plan?.executable == true;
     return Scaffold(
       appBar: AppBar(title: const Text('Comando')),
       body: ListView(
@@ -356,9 +353,9 @@ class _CommandPageState extends State<CommandPage> {
           Padding(padding: const EdgeInsets.only(top: 6), child: Text('Interpretado con: $_interpretationSource')),
           if (_message != null) Padding(padding: const EdgeInsets.only(top: 16), child: Text(_message!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
           if (intent?.entity != null) ...[
-            _preview(intent!),
+            _preview(plan!),
             const SizedBox(height: 16),
-            FilledButton.icon(onPressed: _busy || !canExecute ? null : _execute, icon: const Icon(Icons.play_arrow), label: Text(intent.action == CommandAction.list || intent.action == CommandAction.get ? 'Abrir' : 'Ejecutar')),
+            FilledButton.icon(onPressed: _busy || !canExecute ? null : _execute, icon: const Icon(Icons.play_arrow), label: Text(plan.action == CommandAction.list || plan.action == CommandAction.get ? 'Abrir' : 'Ejecutar')),
           ],
         ],
       ),
@@ -375,18 +372,29 @@ class _CommandPageState extends State<CommandPage> {
         '${(progress.totalBytes! / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
-  Widget _preview(CommandIntent intent) => Card(
+  Widget _preview(CommandExecutionPlan plan) => Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Acción: ${intent.action.name}'),
-            Text('Entidad: ${intent.entity!.name}'),
-            if (intent.recordId != null) Text('ID: ${intent.recordId}'),
-            for (final entry in intent.values.entries) Text('${entry.key}: ${entry.value}'),
-            for (final entry in intent.relationValues.entries) Text('${entry.key}: ${entry.value}'),
+            Text('Acción: ${plan.relationOperations.isNotEmpty ? (plan.relationOperations.single.operation == 'createBridge' ? 'crear asociación' : 'asociar') : plan.action.name}'),
+            if (plan.sourceEntity != null) ...[
+              Text('Origen: ${plan.sourceEntity!.name}'),
+              if (plan.sourceRecord != null) Text('Registro origen: ${_recordSummary(plan.sourceEntity!, plan.sourceRecord!)}'),
+            ],
+            if (plan.targetEntity != null) ...[
+              Text('Destino: ${plan.targetEntity!.name}'),
+              if (plan.relatedRecord != null) Text('Registro destino: ${_recordSummary(plan.targetEntity!, plan.relatedRecord!)}'),
+            ],
+            if (plan.entity != null) Text('Entidad de ejecución: ${plan.entity!.name}'),
+            if (plan.targetRecord != null) Text('Registro: ${_recordSummary(plan.entity!, plan.targetRecord!)}'),
+            for (final entry in plan.scalarChanges.entries) Text('${entry.key}: ${entry.value}'),
+            for (final operation in plan.relationOperations) Text('Relación: ${operation.operation} ${operation.field?.name ?? operation.bridgeEntity?.name ?? ''}'),
+            if (!plan.executable) Text('Bloqueado: ${plan.blockingError}', style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ]),
         ),
       );
+
+  String _recordSummary(RuntimeEntity entity, Map<String, dynamic> record) => '${record[entity.displayField] ?? record[entity.idField]} (ID real: ${record[entity.idField]})';
 
   @override
   void dispose() {

@@ -24,9 +24,15 @@ class RuntimeSchema {
     );
   }
 
-  RuntimeEntity? entityByName(String? name) => name == null
-      ? null
-      : entities.where((entity) => entity.name == name).firstOrNull;
+  RuntimeEntity? entityByName(String? name) {
+    if (name == null || name.trim().isEmpty) return null;
+    final needle = name.trim().toLowerCase();
+    return entities.where((entity) {
+      final current = entity.name.trim().toLowerCase();
+      return current == needle ||
+          current.replaceAll(RegExp(r'\s+'), '') == needle.replaceAll(RegExp(r'\s+'), '');
+    }).firstOrNull;
+  }
 }
 
 class RuntimeEntity {

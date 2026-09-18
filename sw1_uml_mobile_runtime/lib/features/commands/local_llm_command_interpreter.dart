@@ -54,11 +54,13 @@ class LocalLlmCommandInterpreter extends CommandInterpreter {
     }).join('\n');
     return '''Eres un intérprete CRUD local. No ejecutes acciones y no inventes datos.
 Devuelve ÚNICAMENTE JSON válido, sin markdown ni explicación.
-Acciones válidas: create, update, delete, list, get.
+Acciones válidas: create, update, delete, list, get. Si la frase es de relación (asocia, relaciona, vincula, asigna, quita, desasocia) usa action="update" y describe la relación en "relations".
 Usa solo entidades y campos del esquema. Si hay duda usa action="unknown" y ambiguities.
+Nunca inventes IDs, ISBN, nombres, fechas, precios, cantidades ni relaciones no mencionadas.
 Formato exacto: {"action":"...","entity":"...","recordId":null,"values":{},"relations":{},"confidence":"high","ambiguities":[]}
 Si el comando está completamente resuelto, devuelve "ambiguities": []. No uses "ambiguities": ["unknown"]. Usa "unknown" únicamente como action cuando no puedas resolver el comando.
 Para relation usa relations con el texto visible; para update no inventes campos omitidos.
+Reconoce sinónimos: crear=crea, agrega, registra, añade; actualizar=actualiza, modifica, cambia, edita; eliminar=elimina, borra, quita; consultar=muestra, busca, dame, consulta; listar=lista, muestra todos; relacionar=asocia, relaciona, vincula, asigna, agrega a; desrelacionar=quita de, desvincula, desasocia, elimina de.
 /no_think
 Ejemplo de salida update: {"action":"update","entity":"Materia","recordId":"8","values":{"creditos":6},"relations":{},"confidence":"high","ambiguities":[]}
 GET es un registro específico identificado por ID; LIST son todos los registros de una entidad.

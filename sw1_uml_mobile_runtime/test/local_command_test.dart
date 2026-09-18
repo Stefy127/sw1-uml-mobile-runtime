@@ -178,6 +178,87 @@ void main() {
     expect(repository.lastBody['creditos'], 6);
   });
 
+  test('detects generic relation phrases through schema', () {
+    final schema = RuntimeSchema(
+      schemaVersion: '1',
+      application: 'Test',
+      version: '1',
+      entities: [
+        RuntimeEntity(
+          name: 'Libro',
+          endpoint: '/api/libros',
+          idField: 'id',
+          displayField: 'titulo',
+          operations: RuntimeOperations(list: true, get: true, create: true, update: true, delete: true),
+          fields: [
+            RuntimeField(name: 'titulo', type: 'string', required: true, editable: true, readOnly: false, nullable: false, collection: false, relation: false),
+            RuntimeField(name: 'categoriaIds', type: 'relation', required: false, editable: true, readOnly: false, nullable: true, collection: true, relation: true, targetEntity: 'Categoria'),
+          ],
+        ),
+        RuntimeEntity(
+          name: 'Categoria',
+          endpoint: '/api/categorias',
+          idField: 'id',
+          displayField: 'nombre',
+          operations: RuntimeOperations(list: true, get: true, create: true, update: true, delete: true),
+          fields: [
+            RuntimeField(name: 'nombre', type: 'string', required: true, editable: true, readOnly: false, nullable: false, collection: false, relation: false),
+          ],
+        ),
+      ],
+    );
+
+    final intent = interpreter.interpret('Asocia el libro Cien años de soledad con la categoría Novela', schema);
+    expect(intent.action, CommandAction.update);
+    expect(intent.entity!.name, 'Libro');
+    expect(intent.relationValues['categoriaIds'], 'Novela');
+  });
+
+  test('rejects invented ids and fields before execution', () async {
+    final entity = RuntimeEntity(
+      name: 'Libro',
+      endpoint: '/api/libros',
+      idField: 'id',
+      displayField: 'titulo',
+      operations: RuntimeOperations(list: true, get: true, create: true, update: true, delete: true),
+      fields: [
+        RuntimeField(name: 'titulo', type: 'string', required: true, editable: true, readOnly: false, nullable: false, collection: false, relation: false),
+        RuntimeField(name: 'isbn', type: 'string', required: false, editable: true, readOnly: false, nullable: true, collection: false, relation: false),
+        RuntimeField(name: 'categoriaIds', type: 'relation', required: false, editable: true, readOnly: false, nullable: true, collection: true, relation: true, targetEntity: 'Categoria'),
+      ],
+    );
+    final schema = RuntimeSchema(
+      schemaVersion: '1',
+      application: 'Test',
+      version: '1',
+      entities: [
+        entity,
+        RuntimeEntity(
+          name: 'Categoria',
+          endpoint: '/api/categorias',
+          idField: 'id',
+          displayField: 'nombre',
+          operations: RuntimeOperations(list: true, get: true, create: true, update: true, delete: true),
+          fields: [RuntimeField(name: 'nombre', type: 'string', required: true, editable: true, readOnly: false, nullable: false, collection: false, relation: false)],
+        ),
+      ],
+    );
+
+    final repository = _RecordingRepository();
+    final executor = CommandExecutor(schema: schema, repository: repository);
+    final result = await executor.execute(CommandIntent(
+      action: CommandAction.update,
+      entity: entity,
+      recordId: 7,
+      values: {'isbn': '978-1-4651056340'},
+      relationValues: {'categoriaIds': 'Novela'},
+      originalText: 'Actualiza el libro Cien años de soledad y asigna la categoría Novela',
+    ));
+
+    expect(result.success, isFalse);
+    expect(result.message, contains('No inventes'));
+  });
+
   test('unknown entity and command remain unknown', () {
     expect(interpreter.interpret('listar pacientes', _schema()).entity, isNull);
     expect(interpreter.interpret('hacer algo', _schema()).action, CommandAction.unknown);
