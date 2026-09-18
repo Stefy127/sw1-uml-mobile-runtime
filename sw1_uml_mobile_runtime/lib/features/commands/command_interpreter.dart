@@ -4,4 +4,7 @@ import 'command_intent.dart';
 /// Contrato local para poder sustituir el intérprete por otro proveedor.
 abstract class CommandInterpreter {
   CommandIntent interpret(String text, RuntimeSchema schema);
+
+  Future<CommandIntent> interpretAsync(String text, RuntimeSchema schema) async =>
+      interpret(text, schema);
 }

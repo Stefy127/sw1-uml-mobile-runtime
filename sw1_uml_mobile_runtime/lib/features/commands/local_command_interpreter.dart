@@ -4,7 +4,7 @@ import 'command_interpreter.dart';
 import 'number_words.dart';
 import 'text_normalizer.dart';
 
-class LocalCommandInterpreter implements CommandInterpreter {
+class LocalCommandInterpreter extends CommandInterpreter {
   CommandIntent interpret(String text, RuntimeSchema schema) {
     final normalized = CommandTextNormalizer.normalize(text);
     final command = _stripFillers(normalized);

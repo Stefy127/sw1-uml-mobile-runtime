@@ -9,8 +9,14 @@ import '../speech/offline_sherpa_speech_recognizer.dart';
 import '../speech/speech_preference_store.dart';
 import '../speech/speech_recognizer_engine.dart';
 import '../speech/system_speech_recognizer_adapter.dart';
+import '../llm/llm_model_manager.dart';
+import '../llm/llm_install_progress.dart';
+import '../llm/llm_preference_store.dart';
+import '../llm/local_llm_engine.dart';
+import '../llm/local_llm_engine_factory.dart';
 import 'command_executor.dart';
 import 'command_intent.dart';
+import 'local_llm_command_interpreter.dart';
 import 'local_command_interpreter.dart';
 
 class CommandPage extends StatefulWidget {
@@ -25,6 +31,8 @@ class _CommandPageState extends State<CommandPage> {
   final _controller = TextEditingController();
   final _interpreter = LocalCommandInterpreter();
   final _modelManager = ModelManager();
+  final _llmModelManager = LlmModelManager();
+  final _llmPreferences = LlmPreferenceStore();
   final _preferences = SpeechPreferenceStore();
   late final CommandExecutor _executor = CommandExecutor(
     schema: widget.schema,
@@ -32,7 +40,12 @@ class _CommandPageState extends State<CommandPage> {
   );
   CommandIntent? _intent;
   SpeechRecognizerEngine? _engine;
+  LocalLlmEngine? _llmEngine;
   SpeechPreference _speechPreference = SpeechPreference.offline;
+  LlmInterpretationMode _interpretationMode = LlmInterpretationMode.localAi;
+  bool _installingLlm = false;
+  LlmInstallProgress? _llmProgress;
+  String _interpretationSource = 'Reglas locales';
   String? _message;
   String _voiceStatus = 'Listo';
   ModelInstallProgress? _downloadProgress;
@@ -43,6 +56,7 @@ class _CommandPageState extends State<CommandPage> {
   void initState() {
     super.initState();
     _loadSpeechPreference();
+    _loadLlmPreference();
   }
 
   Future<void> _loadSpeechPreference() async {
@@ -50,8 +64,13 @@ class _CommandPageState extends State<CommandPage> {
     if (mounted) setState(() => _speechPreference = value);
   }
 
+  Future<void> _loadLlmPreference() async {
+    final value = await _llmPreferences.read();
+    if (mounted) setState(() => _interpretationMode = value);
+  }
+
   Future<void> _onMicrophone() async {
-    if (_installingModel) return;
+    if (_installingModel || _installingLlm) return;
     if (_engine?.isListening == true) {
       await _engine!.stopListening();
       if (mounted) setState(() => _voiceStatus = 'Listo');
@@ -163,6 +182,59 @@ class _CommandPageState extends State<CommandPage> {
     });
   }
 
+  Future<void> _interpretCommand() async {
+    setState(() {
+      _intent = null;
+      _message = null;
+    });
+    if (_interpretationMode == LlmInterpretationMode.localRules) {
+      _interpret();
+      setState(() => _interpretationSource = 'Reglas locales');
+      return;
+    }
+    if (!await _llmModelManager.isInstalled()) {
+      setState(() => _message = 'Para usar IA local debes instalar el modelo LLM.');
+      return;
+    }
+    setState(() => _busy = true);
+    final engine = _llmEngine ??= LocalLlamaEngine(modelManager: _llmModelManager);
+    try {
+      final interpreter = LocalLlmCommandInterpreter(engine: engine, fallback: _interpreter);
+      final intent = await interpreter.interpretAsync(_controller.text, widget.schema);
+      setState(() {
+        _intent = intent;
+        _interpretationSource = intent.confidence >= 0.5 && intent.ambiguities.isEmpty ? 'IA local' : 'Reglas locales';
+        _message = intent.entity == null ? 'No se reconoció la entidad.' : null;
+      });
+    } catch (_) {
+      final intent = _interpreter.interpret(_controller.text, widget.schema);
+      setState(() {
+        _intent = intent;
+        _interpretationSource = 'Reglas locales';
+        _message = intent.entity == null ? 'No se reconoció la entidad.' : null;
+      });
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _installLlmModel() async {
+    if (_installingLlm) return;
+    setState(() { _installingLlm = true; _message = 'Descargando modelo IA local...'; });
+    try {
+      await _llmModelManager.installModel(
+        onProgress: (progress) {
+          if (mounted) setState(() => _llmProgress = progress);
+        },
+      );
+      if (mounted) setState(() { _message = 'Modelo IA local instalado.'; _llmProgress = null; });
+    } catch (_) {
+      if (mounted) setState(() { _message = 'No se pudo instalar el modelo IA local.'; _llmProgress = null; });
+    } finally {
+      if (mounted) setState(() => _installingLlm = false);
+    }
+  }
+
   Future<void> _execute() async {
     final intent = _intent;
     if (intent == null) return;
@@ -218,6 +290,36 @@ class _CommandPageState extends State<CommandPage> {
         children: [
           const Text('El reconocimiento offline se procesa en este dispositivo.'),
           const SizedBox(height: 12),
+          DropdownButtonFormField<LlmInterpretationMode>(
+            value: _interpretationMode,
+            decoration: const InputDecoration(labelText: 'Interpretación'),
+            items: const [
+              DropdownMenuItem(value: LlmInterpretationMode.localAi, child: Text('IA local')),
+              DropdownMenuItem(value: LlmInterpretationMode.localRules, child: Text('Reglas locales')),
+            ],
+            onChanged: (value) {
+              if (value == null) return;
+              _llmPreferences.write(value);
+              setState(() => _interpretationMode = value);
+            },
+          ),
+          if (_interpretationMode == LlmInterpretationMode.localAi) ...[
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: _installingLlm ? null : _installLlmModel,
+              icon: const Icon(Icons.download),
+              label: Text(_installingLlm ? 'Instalando modelo IA...' : 'Instalar modelo IA'),
+            ),
+            if (_llmProgress != null) ...[
+              LinearProgressIndicator(value: _llmProgress!.fraction),
+              Text(
+                _llmProgress!.fraction == null
+                    ? 'Descargando modelo IA local...'
+                    : 'Descargando modelo IA local: ${(_llmProgress!.fraction! * 100).clamp(0, 100).floor()}%',
+              ),
+            ],
+          ],
+          const SizedBox(height: 12),
           DropdownButtonFormField<SpeechPreference>(
             value: _speechPreference,
             decoration: const InputDecoration(labelText: 'Reconocimiento de voz'),
@@ -234,7 +336,7 @@ class _CommandPageState extends State<CommandPage> {
             decoration: InputDecoration(
               labelText: 'Comando',
               hintText: 'crear una entidad con nombre ...',
-              suffixIcon: IconButton(onPressed: _installingModel ? null : _onMicrophone, icon: Icon(_installingModel ? Icons.downloading : (_engine?.isListening == true ? Icons.stop : Icons.mic_none))),
+              suffixIcon: IconButton(onPressed: _installingModel || _installingLlm ? null : _onMicrophone, icon: Icon(_installingModel || _installingLlm ? Icons.downloading : (_engine?.isListening == true ? Icons.stop : Icons.mic_none))),
             ),
           ),
           if (_downloadProgress != null) ...[
@@ -250,7 +352,8 @@ class _CommandPageState extends State<CommandPage> {
           ],
           Padding(padding: const EdgeInsets.only(top: 8), child: Text(_voiceStatus)),
           const SizedBox(height: 12),
-          FilledButton.icon(onPressed: _interpret, icon: const Icon(Icons.auto_awesome), label: const Text('Interpretar')),
+          FilledButton.icon(onPressed: _busy || _installingLlm ? null : _interpretCommand, icon: const Icon(Icons.auto_awesome), label: const Text('Interpretar')),
+          Padding(padding: const EdgeInsets.only(top: 6), child: Text('Interpretado con: $_interpretationSource')),
           if (_message != null) Padding(padding: const EdgeInsets.only(top: 16), child: Text(_message!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
           if (intent?.entity != null) ...[
             _preview(intent!),
@@ -288,6 +391,8 @@ class _CommandPageState extends State<CommandPage> {
   @override
   void dispose() {
     _engine?.dispose();
+    _llmEngine?.dispose();
+    _llmModelManager.dispose();
     _controller.dispose();
     super.dispose();
   }
